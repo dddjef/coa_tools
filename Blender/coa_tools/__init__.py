@@ -210,7 +210,7 @@ def update_sprites(dummy):
     
     alpha_update_frequency = get_addon_prefs(context).alpha_update_frequency    
     for obj in objects:
-        if "coa_sprite" in obj and obj.animation_data != None and obj.type == "MESH":
+        if "coa_sprite" in obj and obj.type == "MESH":
             if obj.coa_sprite_frame != obj.coa_sprite_frame_last:
                 update_uv(bpy.context,obj)
                 obj.coa_sprite_frame_last = obj.coa_sprite_frame
@@ -253,33 +253,30 @@ def scene_update(dummy):
     global ticker
     ticker += 1
     context = bpy.context
-    if hasattr(context,"visible_objects"):
-        objects = context.visible_objects
-    else:
-        objects = bpy.data.objects
-            
-    if  hasattr(context,"window_manager"):
-        wm = bpy.context.window_manager
-        if wm.coa_update_uv:
-            for obj in objects:
-                if "coa_sprite" in obj and obj.animation_data != None and obj.type == "MESH":
-                    if obj.coa_sprite_frame != obj.coa_sprite_frame_last:
-                        update_uv(bpy.context,obj)
-                        obj.coa_sprite_frame_last = obj.coa_sprite_frame
-                    if obj.coa_slot_index != obj.coa_slot_index_last:
-                        change_slot_mesh_data(context,obj)
-                        obj.coa_slot_index_last = obj.coa_slot_index
-                    if obj.coa_z_value != obj.coa_z_value_last:
-                        set_z_value(context,obj,obj.coa_z_value)
-                        obj.coa_z_value_last = obj.coa_z_value    
-                    if ticker%5 == 0:
-                        if obj.coa_alpha != obj.coa_alpha_last:
-                            set_alpha(obj,bpy.context,obj.coa_alpha)
-                            obj.coa_alpha_last = obj.coa_alpha
+    actOb = context.active_object
+    # change to update only when a coa armature is moved. Handy for driver update. This function seemed to be deprecated
+    if bpy.context.active_bone:
+        for obj in bpy.data.objects:
+            if "coa_slot" in obj:
+                # if obj.coa_sprite_frame != obj.coa_sprite_frame_last:
+                    # update_uv(bpy.context,obj)
+                    # obj.coa_sprite_frame_last = obj.coa_sprite_frame
+
+                if obj.coa_slot_index != obj.coa_slot_index_last:
+                    change_slot_mesh_data(context,obj)
+                    obj.coa_slot_index_last = obj.coa_slot_index
+                if obj.coa_z_value != obj.coa_z_value_last:
+                    set_z_value(context,obj,obj.coa_z_value)
+                    obj.coa_z_value_last = obj.coa_z_value    
+                # if ticker%5 == 0:
+                    # if obj.coa_alpha != obj.coa_alpha_last:
+                        # set_alpha(obj,bpy.context,obj.coa_alpha)
+                        # obj.coa_alpha_last = obj.coa_alpha
                 
     if hasattr(bpy.context,"active_object"):
         obj = bpy.context.active_object
         if obj != None and not obj.coa_sprite_updated and "coa_sprite" in obj:
+            print(obj)
             for thumb in preview_collections["coa_thumbs"]:
                 preview_collections["coa_thumbs"][thumb].reload()
             obj.coa_sprite_updated = True
